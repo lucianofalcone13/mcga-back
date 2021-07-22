@@ -1,6 +1,6 @@
 const mapResponse = (data, success, message) => {
     return {
-        ...data,
+        data,
         success,
         message
     }

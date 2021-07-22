@@ -6,42 +6,71 @@ const mapResponse = require("../../../helpers/responseMapper");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-    const tasks = await controller.getAllTaks();
-    if (typeof tasks === "object" && tasks.length) {
-        res.send(mapResponse({ data: tasks }));
-    } else {
-        res.send(mapResponse({ data: [] }, false, "Error trying to get the list of tasks, please try again"));
-    }
+  const tasks = await controller.getAllTaks();
+  if (typeof tasks === "object") {
+    console.log(tasks)
+    res.send(mapResponse(tasks, true));
+  } else {
+    res.send(
+      mapResponse(
+        { data: [] },
+        false,
+        "Error trying to get the list of tasks, please try again"
+      )
+    );
+  }
 });
 
 router.post("/add", async (req, res) => {
-    const { description } = req.body;
-    const result = await controller.addTask({ description });
-    if (result instanceof Task) {
-        res.send(mapResponse(result, true, "")).json();
+  const { description } = req.body;
+  const result = await controller.addTask({ description });
+  if (result instanceof Task) {
+    const newTask = {
+      _id: result._doc._id,
+      description: result._doc.description,
+      __v: result._doc.__v
     }
-    res.send(mapResponse({ data: {} }, false, "Error trying to add the task")).json();
+    res.send(mapResponse(newTask, true, "")).json();
+  }
+  res
+    .send(mapResponse({ }, false, "Error trying to add the task"))
+    .json();
 });
 
 router.delete("/:id", async (req, res) => {
+  try {
     const _id = req.params.id.toString();
     const result = await controller.removeTask(_id);
     if (result.ok === 1) {
-        res.send(mapResponse({ _id }, true, "Items has been removed successfully")).json();
+      res
+        .send(mapResponse({ _id }, true, "Item has been removed successfully"))
+        .json();
     } else {
-        res.send(mapResponse({ _id }, false, "Error trying to remove the task")).json();
+      res
+        .send(mapResponse({ _id }, false, "Error trying to remove the task"))
+        .json();
     }
+  } catch (error) {
+    console.log(error.message)
+  }
 });
 
-router.get("/edit/:id", async (req, res) => {
-    const result = await controller.editTask({
-        ...req.body,
-        _id: req.params.id.toString(),
-    });
-    if (result instanceof Task) {
-        res.send(mapResponse(result, true, "")).json();
+router.put("/edit/:id", async (req, res) => {
+  const result = await controller.editTask({
+    ...req.body,
+    _id: req.params.id.toString(),
+  });
+  if (result instanceof Task) {
+    const editedTask = {
+      _id: result._doc._id,
+      description: result._doc.description,
+      __v: result._doc.__v
     }
-    res.send(mapResponse({ data: {} }, false, "Error trying to edit the task")).json();
+    res.send(mapResponse(editedTask, true, "")).json();
+  }
+  res
+    .send(mapResponse({ data: {} }, false, "Error trying to edit the task"))
+    .json();
 });
 
 module.exports = router;
