@@ -2,13 +2,13 @@ const express = require("express");
 const controller = require("../../../controllers/tasksController");
 const Task = require("../../../models/tasks");
 const mapResponse = require("../../../helpers/responseMapper");
+const { checkToken } = require("../../../helpers/middlewares");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", checkToken, async (req, res) => {
   const tasks = await controller.getAllTaks();
   if (typeof tasks === "object") {
-    console.log(tasks)
     res.send(mapResponse(tasks, true));
   } else {
     res.send(
@@ -21,23 +21,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", checkToken, async (req, res) => {
   const { description } = req.body;
   const result = await controller.addTask({ description });
   if (result instanceof Task) {
-    const newTask = {
-      _id: result._doc._id,
-      description: result._doc.description,
-      __v: result._doc.__v
-    }
-    res.send(mapResponse(newTask, true, "")).json();
+    res.send(mapResponse(result._doc, true, "")).json();
   }
-  res
-    .send(mapResponse({ }, false, "Error trying to add the task"))
-    .json();
+  res.send(mapResponse({}, false, "Error trying to add the task")).json();
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkToken, async (req, res) => {
   try {
     const _id = req.params.id.toString();
     const result = await controller.removeTask(_id);
@@ -51,22 +44,17 @@ router.delete("/:id", async (req, res) => {
         .json();
     }
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
   }
 });
 
-router.put("/edit/:id", async (req, res) => {
+router.put("/edit/:id", checkToken, async (req, res) => {
   const result = await controller.editTask({
     ...req.body,
     _id: req.params.id.toString(),
   });
   if (result instanceof Task) {
-    const editedTask = {
-      _id: result._doc._id,
-      description: result._doc.description,
-      __v: result._doc.__v
-    }
-    res.send(mapResponse(editedTask, true, "")).json();
+    res.send(mapResponse(result._doc, true, "")).json();
   }
   res
     .send(mapResponse({ data: {} }, false, "Error trying to edit the task"))
