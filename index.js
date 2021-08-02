@@ -13,11 +13,11 @@ const applyMiddlewares = () => {
   app.use(cors());
   app.use(json());
   app.use("/api", api);
-  app.use(express.static(path.join(__dirname, "dist")));
+  app.use(express.static("dist"));
 };
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 const startServer = () => {

@@ -1,3 +1,3 @@
-const handleError = err => err;
+const handleError = (err) => err;
 
 module.exports = handleError;
