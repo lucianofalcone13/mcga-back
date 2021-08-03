@@ -25,16 +25,21 @@ const controller = {
         if (err) return res.send(mapResponse({}, false, err.message)).json();
         if (!isMatch)
           return res.send(mapResponse({}, false, "Invalid Credentials"));
-        const token = jwt.sign({ user }, `${process.env.SECRET_KEY}`);
-        return res.send(
-          mapResponse(
-            {
-              ...user._doc,
-              jwt: token,
-            },
-            true
-          )
-        );
+        jwt.sign({ user }, `${process.env.SECRET_KEY}`, (err, token) => {
+          if (err)
+            return res
+              .send(mapResponse({}, false, "Something went wrong"))
+              .json();
+          return res.send(
+            mapResponse(
+              {
+                ...user._doc,
+                jwt: token,
+              },
+              true
+            )
+          );
+        });
       });
     });
   },
