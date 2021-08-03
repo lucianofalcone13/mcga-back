@@ -21,9 +21,9 @@ app.get("/", (req, res) => {
 });
 
 const startServer = () => {
-  const { SERVER_PORT } = process.env;
-  app.listen(SERVER_PORT, () => {
-    console.log(`Server running at http://localhost:${SERVER_PORT}`);
+  const { PORT } = process.env;
+  app.listen(PORT || 5050, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
   });
 };
 
